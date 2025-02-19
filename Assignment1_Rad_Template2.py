@@ -5,7 +5,7 @@ import vcf # Read in vcf files --conda install conda-forge::pyvcf
 from Bio.Restriction.Restriction_Dictionary import rest_dict # Library of restriction enzymes so users can enter enzyme names instead of motifs
 
 # Usage: python Assignment1_Rad_Template.py Mzebra_GT3_Chr1.fasta YH_MC_samples_Chr1.vcf SingleRad EcoRI 
-# Usage: python Assignment1_Rad_Template.py Mzebra_GT3_Chr1.fasta YH_MC_samples_Chr1.vcf ddRad EcoRI --RE2 HindIII
+# Usage: python Assignment1_Rad_Template2.py Mzebra_GT3_Chr1.fasta YH_MC_samples_Chr1.vcf ddRad EcoRI --RE2 HindIII
 
 
 
@@ -141,6 +141,11 @@ def run_ddrad(dna: str, re1: str, re2: str): # -> list[tuple[int, int]]:
     :param re2: second restriction enzyme name
     :return sequenced_sites: a list of tuples, where each tuple contains the start and stop index of a sequenced site
     """
+
+    # problem with my code is im iterating through each restriction site pair and taking the start and end of it, 
+    # but in test code approach is ikely oding the start and stop site of the first of pair and same for the second of the pair
+
+
     min_size = 300  # This variable stores the shortest distance for the DNA piece
     max_size = 700  # This variable stores the longest distance for the DNA piece
     seq_length = 100  # This variable stores how long the sequencing reads are
@@ -169,7 +174,9 @@ def run_ddrad(dna: str, re1: str, re2: str): # -> list[tuple[int, int]]:
         # TODO: Check conditions for left side
         if left_hits_r2 and min_size < (r1 - left_hits_r2[-1]) < max_size:
             if not left_hits_r1 or left_hits_r2[-1] > left_hits_r1[-1]:
-                sequenced_sites.append((left_hits_r2[-1], r1))
+                # sequenced_sites.append((left_hits_r2[-1], r1))
+                sequenced_sites.append((left_hits_r2[-1], left_hits_r2[-1]+seq_length))
+                sequenced_sites.append((r1-seq_length, r1))
 
         # TODO: Look right of the current site
         right_hits_r1 = [x for x in re1_sites if x > r1]
@@ -178,28 +185,9 @@ def run_ddrad(dna: str, re1: str, re2: str): # -> list[tuple[int, int]]:
         # TODO: Check conditions for right side
         if right_hits_r2 and min_size < (right_hits_r2[0] - r1) < max_size:
             if not right_hits_r1 or right_hits_r2[0] < right_hits_r1[0]:
-                sequenced_sites.append((r1, right_hits_r2[0]))
-
-    # To ensure we get both sides, check reverse of the logic too
-    for r2 in re2_sites:  # Loop through each RE2 site
-        # Look for RE1 sites left of the current RE2 site
-        left_hits_r1 = [x for x in re1_sites if x < r2]
-        left_hits_r2 = [x for x in re2_sites if x < r2]
-
-        # Check conditions for left side (from re2's perspective)
-        if left_hits_r1 and min_size < (r2 - left_hits_r1[-1]) < max_size:
-            if not left_hits_r2 or left_hits_r1[-1] > left_hits_r2[-1]:
-                sequenced_sites.append((left_hits_r1[-1], r2))
-
-        # Look for RE1 sites right of the current RE2 site
-        right_hits_r1 = [x for x in re1_sites if x > r2]
-        right_hits_r2 = [x for x in re2_sites if x > r2]
-
-        # Check conditions for right side (from re2's perspective)
-        if right_hits_r1 and min_size < (right_hits_r1[0] - r2) < max_size:
-            if not right_hits_r2 or right_hits_r1[0] < right_hits_r2[0]:
-                sequenced_sites.append((r2, right_hits_r1[0]))
-
+                # sequenced_sites.append((r1, right_hits_r2[0]))
+                sequenced_sites.append((r1, r1+seq_length))
+                sequenced_sites.append((right_hits_r2[0]-seq_length, right_hits_r2[0]))
 
     return sequenced_sites
 
