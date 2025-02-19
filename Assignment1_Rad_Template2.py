@@ -178,6 +178,18 @@ def run_ddrad(dna: str, re1: str, re2: str): # -> list[tuple[int, int]]:
                 sequenced_sites.append((left_hits_r2[-1], left_hits_r2[-1]+seq_length))
                 sequenced_sites.append((r1-seq_length, r1))
 
+                # (x, x+100 position) as the first sequenced site
+                # and (X - 100, X) as the next sequenced site?
+
+                '''
+                In DDRAD sequencing, two different restriction enzymes cut the DNA at sites (x, X).
+                The selected fragments lie between these sites and are size-selected.
+                Sequencing starts at each cut site and extends outward for a fixed length (e.g., 100 bp).
+                This results in reads like (x, x+100) and (X-100, X), rather than sequencing the full x to X region.
+
+                
+                '''
+
         # TODO: Look right of the current site
         right_hits_r1 = [x for x in re1_sites if x > r1]
         right_hits_r2 = [x for x in re2_sites if x > r1]
